@@ -1,0 +1,27 @@
+- hosts: all
+  become: true
+  vars:
+    home: /home/vagrant
+    os: ubuntu
+    user: ubuntu
+    osversioncode: xenial
+  gather_facts: 'no'
+  pre_tasks:
+    - name: Symlink sh to bash rather than dash
+      file: src=/bin/bash dest=/bin/sh state=link force=true
+    - name: nodejs apt add
+      shell: 'curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -'
+    - name: Update apt cache and optionally upgrade
+      apt: update_cache=yes cache_valid_time=7200 upgrade=yes
+    - name: Install stuff from Aptitude
+      apt: 'name={{ item }}'
+      with_items:
+        - git
+        - make
+        - nodejs
+        - build-essential
+  roles:
+    - role: dotfiles
+      become: false
+    - role: golang
+      become: false
